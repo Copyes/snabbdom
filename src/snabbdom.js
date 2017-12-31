@@ -50,6 +50,7 @@ export default function init(modules = [], api) {
       }
     }
   }
+  console.log(cbs)
   // 手动触发destroy hook
   // 首先是触发每个节点自己的destroy hook
   // 然后是触发全局的destroy hook
@@ -57,7 +58,8 @@ export default function init(modules = [], api) {
   const invokeDestroyHook = vnode => {
     let data = vnode.data,
       i,
-      j
+      j,
+      l
 
     if (is.Def(data)) {
       if (is.Def((i = data.hook)) && is.Def((i = i.destroy))) i(vnode)
@@ -241,7 +243,7 @@ export default function init(modules = [], api) {
         api.setTextContent(elem, '')
       }
     } else if (oldVNode.text !== vnode.text) {
-      api.setTextContent(elm, vnode.text)
+      api.setTextContent(elem, vnode.text)
     }
     //patch完，触发postpatch钩子
     if (is.Def(hook) && is.Def((i = hook.postpatch))) {
@@ -331,5 +333,35 @@ export default function init(modules = [], api) {
     }
   }
 
-  return function() {}
+  return function(oldVnode, vnode) {
+    let i, elem, parent
+    let insertedVnodeQueue = []
+    for (i = 0; i < cbs.pre.length; ++i) cbs.pre[i]()
+
+    if (is.unDef(oldVnode.sel)) {
+      oldVnode = emptyNodeAt(oldVnode)
+    }
+    console.log(oldVnode, vnode)
+    //如果oldvnode与vnode相似，进行更新
+    if (isSameNode(oldVnode, vnode)) {
+      patchVnode(oldVnode, vnode)
+    } else {
+      elem = oldVnode.elem
+      console.log(elem)
+      parent = api.parentNode(elem)
+      createElem(vnode, insertedVnodeQueue)
+      if (parent !== null) {
+        api.insertBefore(parent, vnode.elem, api.nextSibling(elem))
+        removeVnodes(parent, [oldVnode], 0, 0)
+      }
+    }
+    //插入完后，调用被插入的vnode的insert钩子
+    for (i = 0; i < insertedVnodeQueue.length; ++i) {
+      insertedVnodeQueue[i].data.hook.insert(insertedVnodeQueue[i])
+    }
+    //然后调用全局下的post钩子
+    for (i = 0; i < cbs.post.length; ++i) cbs.post[i]()
+    //返回vnode用作下次patch的oldvnode
+    return vnode
+  }
 }

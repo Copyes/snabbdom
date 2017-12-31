@@ -4,5 +4,8 @@ The simplified virtual dom library. it lets me kown the process of diffing.
 
 ### Todo
 
-* [ ] 1、"h" function
-* [ ] 2、vnode structure
+* [x] 1、"h" function
+* [x] 2、vnode structure
+* [x] 3、styleModule, classModule
+* [x] 4、utils -> is and htmldomapi
+* [x] 5、patch and patchNode and diff

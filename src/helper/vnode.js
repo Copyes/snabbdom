@@ -8,7 +8,7 @@ const isVnode = vnode => {
   return vnode && vnode._type === VNODE_TYPE
 }
 // 虚拟节点的对象主要包含的字段
-const vnode = (sel, data, children, text, elm) => {
+const vnode = (sel, data, children, text, elem) => {
   let key = data === undefined ? undefined : data.key
   return {
     _type: VNODE_TYPE,
@@ -16,7 +16,7 @@ const vnode = (sel, data, children, text, elm) => {
     data,
     children,
     text,
-    elm,
+    elem,
     key
   }
 }

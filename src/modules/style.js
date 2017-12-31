@@ -18,14 +18,12 @@ const setNextFrame = (obj, prop, value) => {
 // update current node's style
 const updateStyle = (oldNode, vnode) => {
   let oldStyle = oldNode.data.style
-  let style = oldNode.data.style
-
+  let style = vnode.data.style
   const elem = vnode.elem
   let cur, name
 
   if (!oldStyle && !style) return
   if (oldStyle === style) return
-
   oldStyle = oldStyle || {}
   style = style || {}
 
@@ -48,7 +46,6 @@ const updateStyle = (oldNode, vnode) => {
         }
       }
     } else if (name !== 'remove' && cur !== oldStyle[name]) {
-      //
       elem.style[name] = cur
     }
   }
