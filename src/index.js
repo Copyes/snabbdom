@@ -2,8 +2,9 @@ import init from './snabbdom'
 import h from './helper/h'
 import classModule from './modules/class'
 import styleModule from './modules/style'
+import propsMoudle from './modules/props'
 
-const patch = init([classModule, styleModule])
+const patch = init([classModule, styleModule, propsMoudle])
 const container = document.getElementById('container')
 
 var nextKey = 11
@@ -125,7 +126,7 @@ function movieView(movie) {
 }
 
 const vnode = h('div', [
-  h('h1', 'Top 10 movies'),
+  h('h1', { props: { 'data-src': 'xxxxx' } }, 'Top 10 movies'),
   h('div', [
     h('a.btn.add', 'Add'),
     'Sort by: ',
