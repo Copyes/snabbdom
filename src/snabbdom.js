@@ -50,7 +50,6 @@ export default function init(modules = [], api) {
       }
     }
   }
-  console.log(cbs)
   // 手动触发destroy hook
   // 首先是触发每个节点自己的destroy hook
   // 然后是触发全局的destroy hook

@@ -2,9 +2,10 @@ import init from './snabbdom'
 import h from './helper/h'
 import classModule from './modules/class'
 import styleModule from './modules/style'
-import propsMoudle from './modules/props'
+import propsModule from './modules/props'
+import attrsModule from './modules/attrs'
 
-const patch = init([classModule, styleModule, propsMoudle])
+const patch = init([classModule, styleModule, propsModule, attrsModule])
 const container = document.getElementById('container')
 
 var nextKey = 11
@@ -120,13 +121,14 @@ function movieView(movie) {
       h('div', { style: { fontWeight: 'bold' } }, movie.rank),
       h('div', movie.title),
       h('div', movie.desc),
-      h('div.btn.rm-btn', 'x')
+      h('div.btn.rm-btn', 'x'),
+      h('a', { props: { href: '/foo' } }, 'take you places!')
     ]
   )
 }
 
 const vnode = h('div', [
-  h('h1', { props: { 'data-src': 'xxxxx' } }, 'Top 10 movies'),
+  h('h1', { attrs: { 'data-src': 'xxxxx' } }, 'Top 10 movies'),
   h('div', [
     h('a.btn.add', 'Add'),
     'Sort by: ',
