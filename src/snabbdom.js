@@ -7,8 +7,9 @@ const createKeyToOldIdx = (children, beginIdx, endIdx) => {
     key
   for (let i = beginIdx; i <= endIdx; ++i) {
     key = children[i].key
-    if (is.Def(children[i])) map[key] = i
+    if (is.Def(key)) map[key] = i
   }
+
   return map
 }
 const emptyNode = vnode('', {}, [], undefined, undefined)
@@ -36,9 +37,16 @@ const createRmCb = (childElm, listeners) => {
     }
   }
 }
-
+/**
+ * 第一个参数是在初始化传入的，表示要比较的模块
+ * 第二个是指的是是否有自己定义的一些操作dom的api
+ * @param {*} modules
+ * @param {*} api
+ */
 export default function init(modules = [], api) {
   if (is.unDef(api)) api = domApi
+  // 注册钩子函数，就是每个模块在更新或者创建的时候都有自己的钩子。就是在初始化的时候
+  // 就将同一类型的钩子放在同一类型的回调函数中
   let cbs = {},
     i,
     j
@@ -50,6 +58,7 @@ export default function init(modules = [], api) {
       }
     }
   }
+  // 在当前vnode被移除的时候触发销毁钩子
   // 手动触发destroy hook
   // 首先是触发每个节点自己的destroy hook
   // 然后是触发全局的destroy hook
@@ -191,6 +200,8 @@ export default function init(modules = [], api) {
   }
 
   const patchVnode = (oldVNode, vnode, insertedVnodeQueue) => {
+    console.log(oldVNode)
+    console.log(vnode)
     let i, hook
     // 调用prepatch hook
     if (
@@ -228,7 +239,7 @@ export default function init(modules = [], api) {
       //如果vnode和oldVnode都有子节点
       if (is.Def(oldCh) && is.Def(ch)) {
         //当Vnode和oldvnode的子节点不同时，调用updatechilren函数，diff子节点
-        if (oldCh !== ch) updateChildren(elem, oldch, ch, insertedVnodeQueue)
+        if (oldCh !== ch) updateChildren(elem, oldCh, ch, insertedVnodeQueue)
         //如果vnode有子节点，oldvnode没子节点
       } else if (is.Def(ch)) {
         //oldvnode是text节点，则将elm的text清除
@@ -250,6 +261,7 @@ export default function init(modules = [], api) {
     }
   }
   const updateChildren = (parentElem, oldCh, newCh, insertedVnodeQueue) => {
+    console.log(1111)
     let oldStartIdx = 0,
       newStartIdx = 0
     let oldEndIdx = oldCh.length - 1,
@@ -266,7 +278,7 @@ export default function init(modules = [], api) {
       } else if (is.unDef(oldEndNode)) {
         oldEndNode = oldCh[--oldEndIdx]
       } else if (isSameNode(oldStartNode, newStartNode)) {
-        patchVode(oldStartNode, newStartNode, insertedVnodeQueue)
+        patchVnode(oldStartNode, newStartNode, insertedVnodeQueue)
         oldStartNode = oldCh[++oldStartIdx]
         newStartNode = newCh[++newStartIdx]
       } else if (isSameNode(oldEndNode, newEndNode)) {
@@ -291,27 +303,28 @@ export default function init(modules = [], api) {
         if (is.unDef(oldKeyToIdx)) {
           //如果不存在旧节点的key-index表，则创建
           oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
-          //找到新节点在旧节点组中对应节点的位置
-          idxInOld = oldKeyToIdx[newStartNode.key]
-          if (is.unDef(idxInOld)) {
-            // 新加入的节点
-            api.insertBefore(
-              parentElem,
-              createElem(newStartNode, insertedVnodeQueue),
-              oldStartNode.elem
-            )
-            newStartNode = newCh[++newStartIdx]
-          } else {
-            //如果新节点在就旧节点组中存在，先找到对应的旧节点
-            elemToMove = oldCh[idxInOld]
-            //先将新节点和对应旧节点作更新
-            patchVnode(elemToMove, newStartNode, insertedVnodeQueue)
-            //然后将旧节点组中对应节点设置为undefined,代表已经遍历过了，不在遍历，否则可能存在重复插入的问题
-            oldCh[idxInOld] = undefined
-            //插入到旧头索引节点之前
-            api.insertBefore(parentElem, elemToMove.elem, oldStartNode.elem)
-            newStartNode = newCh[++newStartIdx]
-          }
+        }
+        console.log(oldKeyToIdx)
+        //找到新节点在旧节点组中对应节点的位置
+        idxInOld = oldKeyToIdx[newStartNode.key]
+        if (is.unDef(idxInOld)) {
+          // 新加入的节点
+          api.insertBefore(
+            parentElem,
+            createElem(newStartNode, insertedVnodeQueue),
+            oldStartNode.elem
+          )
+          newStartNode = newCh[++newStartIdx]
+        } else {
+          //如果新节点在就旧节点组中存在，先找到对应的旧节点
+          elemToMove = oldCh[idxInOld]
+          //先将新节点和对应旧节点作更新
+          patchVnode(elemToMove, newStartNode, insertedVnodeQueue)
+          //然后将旧节点组中对应节点设置为undefined,代表已经遍历过了，不在遍历，否则可能存在重复插入的问题
+          oldCh[idxInOld] = undefined
+          //插入到旧头索引节点之前
+          api.insertBefore(parentElem, elemToMove.elem, oldStartNode.elem)
+          newStartNode = newCh[++newStartIdx]
         }
       }
     }
@@ -336,7 +349,6 @@ export default function init(modules = [], api) {
     let i, elem, parent
     let insertedVnodeQueue = []
     for (i = 0; i < cbs.pre.length; ++i) cbs.pre[i]()
-
     if (is.unDef(oldVnode.sel)) {
       oldVnode = emptyNodeAt(oldVnode)
     }

@@ -104,7 +104,7 @@ function movieView(movie) {
       key: movie.rank,
       style: {
         opacity: '0',
-        transform: 'translate(-200px)',
+        transform: 'translate(100px)',
         delayed: { transform: `translateY(${movie.offset}px)`, opacity: '1' },
         remove: {
           opacity: '0',
@@ -159,4 +159,15 @@ const vnode = h('div', [
   h('div.list', { style: { height: totalHeight + 'px' } }, data.map(movieView))
 ])
 
-patch(container, vnode)
+const vnode1 = h('div.a', [
+  h('h1', { attrs: { 'data-src': 'xxxxx' } }, 'Top 10 movies'),
+  h('h1', { attrs: { 'data-src': 'xxxxx' } }, 'Top 10 movies')
+])
+
+const vnode2 = h('div.a', [
+  h('h2', { attrs: { 'data-src': 'yyyyy' } }, 'Top 20 movies'),
+  h('h2', { attrs: { 'data-src': 'yyyyy' } }, 'Top 30 beautys')
+])
+let a = patch(container, vnode2)
+patch(a, vnode1)
+// patch(container, vnode)
